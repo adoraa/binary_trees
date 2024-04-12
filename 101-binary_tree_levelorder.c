@@ -1,31 +1,63 @@
 #include "binary_trees.h"
-#include "queue.h"
+
+/**
+ * binary_tree_levelorder_util - Utility function for level-order traversal
+ * @tree: Pointer to the root node of the tree to traverse
+ * @func: Pointer to a function to call for each node
+ * @level: Current level being processed
+ *
+ * Description: This function traverses the binary tree in level-order.
+ */
+void binary_tree_levelorder_util(const binary_tree_t *tree,
+		void (*func)(int), int level)
+{
+	if (tree == NULL)
+		return;
+
+	if (level == 1)
+		func(tree->n);
+	else if (level > 1)
+	{
+		binary_tree_levelorder_util(tree->left, func, level - 1);
+		binary_tree_levelorder_util(tree->right, func, level - 1);
+	}
+}
 
 /**
  * binary_tree_levelorder - Goes through a binary tree using
  * level-order traversal
  * @tree: Pointer to the root node of the tree to traverse
  * @func: Pointer to a function to call for each node
- * Description: If tree or func is NULL, do nothing
+ *
+ * Description: This function traverses the binary tree in level-order.
+ * If tree or func is NULL, do nothing.
  */
 void binary_tree_levelorder(const binary_tree_t *tree, void (*func)(int))
 {
-	const binary_tree_t *node;
+	if (tree == NULL || func == NULL)
+		return;
 
-	queue_t *queue = NULL;
+	/* Calculate the height of the tree */
+	int height = binary_tree_height(tree);
 
-	queue = queue_create();
+	/* Traverse the tree level by level */
+	for (int level = 1; level <= height + 1; level++)
+		binary_tree_levelorder_util(tree, func, level);
+}
 
-	queue_push(queue, (void *)tree);
+/**
+ * binary_tree_height - Measures the height of a binary tree
+ * @tree: Pointer to the root node of the tree to measure the height
+ *
+ * Return: Height of the tree, or 0 if tree is NULL
+ */
+size_t binary_tree_height(const binary_tree_t *tree)
+{
+	if (tree == NULL)
+		return (0);
 
-	while (!queue_is_empty(queue))
-	{
-		*node = (binary_tree_t *)queue_front(queue);
-		func(node->n);
-		if (node->left != NULL)
-			queue_push(queue, (void *)node->left);
-		if (node->right != NULL)
-			queue_push(queue, (void *)node->right);
-		queue_pop(queue);
-	} queue_delete(queue);
+	size_t left_height = binary_tree_height(tree->left);
+	size_t right_height = binary_tree_height(tree->right);
+
+	return (left_height > right_height ? left_height + 1 : right_height + 1);
 }
